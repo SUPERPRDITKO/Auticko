@@ -2,7 +2,7 @@ from microbit import *
 
 class joystick:
 
-    def joystickGetXY(pinX, pinY, screen):
+    def GetXY(pinX, pinY, screen):
 
         #pin2.set_pull(pin2.PULL_UP)
         #divide it to 5*5 range
