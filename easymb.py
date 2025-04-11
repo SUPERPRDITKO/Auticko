@@ -20,17 +20,17 @@ class joystick:
         return coordsX, coordsY
 class servo:
     def driveServo(pin, num):
-    if num > 1024 or num < 0:
-        raise ValueError("Input value must be between 0 and 1024.")
-    new_value = 8 + num * (134 - 8) / 1024
-    pin.write_analog(new_value)
-    return True
+        if num > 1024 or num < 0:
+            raise ValueError("Input value must be between 0 and 1024.")
+        new_value = 8 + num * (134 - 8) / 1024
+        pin.write_analog(new_value)
+        return True
 class driveAss:
     def driveWheel(leftPin = pin0, rightPin = pin1, backPin = pin3, motor = "", value = 0):
-        if not motor in ["l", "L", "r", "R", "b", "B"]
+        if motor not in ["l", "L", "r", "R", "b", "B"]:
             raise ValueError("Unknown motor")
         if motor == "R" or motor == "r":
-            rigtPin.write_digital(value)
+            rightPin.write_digital(value)
         if motor == "L" or motor == "l":
             leftPin.write_digital(value)
         if motor == "B" or motor == "b":
