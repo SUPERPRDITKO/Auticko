@@ -23,6 +23,26 @@ def driveServo(pin, num):
     new_value = 8 + num * (134 - 8) / 1024
     pin.write_analog(new_value)
     return True
+
+def controlPasswordSet():
+    radio.on()
+    password = 0
+    chan = 0
+    while True:
+        display.show(password)
+        chan += 1
+        try: radio.config(channel= chan)
+        except: chan = 0
+            
+        if button_b.was_pressed():
+            password += 1
+        if (radio.receive() == str(password)):
+            display.scroll("y")
+            break
+
+
+
+
 while True:
     x, y = joystickGetXY(pin0, pin1, False)
     driveServo(pin8, y)
