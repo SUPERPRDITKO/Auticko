@@ -41,6 +41,8 @@ def controlPasswordSet():
                 password = 0
         if (radio.receive() == str(password)):
             display.scroll("y")
+            for i in range(100):
+                radio.send(str(password))
             break
 
 def carSet():
