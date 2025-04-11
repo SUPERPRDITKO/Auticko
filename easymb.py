@@ -26,8 +26,9 @@ class motor:
             new_value = 8 + num * (134 - 8) / 1024
             pin.write_analog(new_value)
             return True
-    class driveAss:
-        def driveWheel(leftPin = pin0, rightPin = pin1, backPin = pin3, motor = "", value = 0):
+    
+    class car:
+        def drive(leftPin = pin0, rightPin = pin1, backPin = pin3, motor = "", value = 0):
             if motor.lower() not in ["l", "r", "b"]:
                 raise ValueError("Unknown motor")
             if motor == "r":
@@ -36,8 +37,8 @@ class motor:
                 leftPin.write_digital(value)
             if motor == "b":
                 backPin.write_digital(value)
-            return(True)
-        
+            return True
+
 class laser:
     class Laser:
         def __init__(self, pin=pin0, power=512):
