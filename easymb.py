@@ -1,4 +1,4 @@
-from microbit import *
+from microbit import *  # noqa: F403
 
 class joystick:
 
