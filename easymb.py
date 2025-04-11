@@ -1,54 +1,5 @@
 from microbit import *  # noqa: F403
 
-class TM1637:
-    def __init__(self, clk, dio):
-        self.clk = clk
-        self.dio = dio
-        self.clk.write_digital(1)
-        self.dio.write_digital(1)
-
-    def start(self):
-        self.dio.write_digital(1)
-        self.clk.write_digital(1)
-        self.dio.write_digital(0)
-        self.clk.write_digital(0)
-
-    def stop(self):
-        self.clk.write_digital(0)
-        self.dio.write_digital(0)
-        self.clk.write_digital(1)
-        self.dio.write_digital(1)
-
-    def write_byte(self, b):
-        for i in range(8):
-            self.clk.write_digital(0)
-            self.dio.write_digital((b >> i) & 1)
-            sleep(1)
-            self.clk.write_digital(1)
-            sleep(1)
-        # ACK bit
-        self.clk.write_digital(0)
-        self.dio.write_digital(1)
-        self.clk.write_digital(1)
-        sleep(1)
-        self.clk.write_digital(0)
-
-    def set_brightness(self, brightness):
-        brightness = max(0, min(7, brightness))
-        self.start()
-        self.write_byte(0x88 | brightness)
-        self.stop()
-
-    def show(self, data):
-        self.start()
-        self.write_byte(0x40)  # Auto increment
-        self.stop()
-        self.start()
-        self.write_byte(0xC0)  # Start address
-        for b in data:
-            self.write_byte(b)
-        self.stop()
-
 class joystick:
 
     def GetXY(pinX, pinY, screen):
@@ -67,7 +18,25 @@ class joystick:
         if screen:
             coordsY = int(coordsY / segmentSize)
         return coordsX, coordsY
-
+class servo:
+    def driveServo(pin, num):
+    if num > 1024 or num < 0:
+        raise ValueError("Input value must be between 0 and 1024.")
+    new_value = 8 + num * (134 - 8) / 1024
+    pin.write_analog(new_value)
+    return True
+class driveAss:
+    def driveWheel(leftPin = pin0, rightPin = pin1, backPin = pin3, motor = "", value = 0):
+        if not motor in ["l", "L", "r", "R", "b", "B"]
+            raise ValueError("Unknown motor")
+        if motor == "R" or motor == "r":
+            rigtPin.write_digital(value)
+        if motor == "L" or motor == "l":
+            leftPin.write_digital(value)
+        if motor == "B" or motor == "b":
+            backPin.write_digital(value)
+        return(True)
+        
 class laser:
     class Laser:
         def __init__(self, pin=pin0, power=512):
@@ -86,6 +55,55 @@ class laser:
             self.off()
 
 class segment:
+    class TM1637:
+        def __init__(self, clk, dio):
+            self.clk = clk
+            self.dio = dio
+            self.clk.write_digital(1)
+            self.dio.write_digital(1)
+
+        def start(self):
+            self.dio.write_digital(1)
+            self.clk.write_digital(1)
+            self.dio.write_digital(0)
+            self.clk.write_digital(0)
+
+        def stop(self):
+            self.clk.write_digital(0)
+            self.dio.write_digital(0)
+            self.clk.write_digital(1)
+            self.dio.write_digital(1)
+
+        def write_byte(self, b):
+            for i in range(8):
+                self.clk.write_digital(0)
+                self.dio.write_digital((b >> i) & 1)
+                sleep(1)
+                self.clk.write_digital(1)
+                sleep(1)
+            # ACK bit
+            self.clk.write_digital(0)
+            self.dio.write_digital(1)
+            self.clk.write_digital(1)
+            sleep(1)
+            self.clk.write_digital(0)
+
+        def set_brightness(self, brightness):
+            brightness = max(0, min(7, brightness))
+            self.start()
+            self.write_byte(0x88 | brightness)
+            self.stop()
+
+        def show(self, data):
+            self.start()
+            self.write_byte(0x40)  # Auto increment
+            self.stop()
+            self.start()
+            self.write_byte(0xC0)  # Start address
+            for b in data:
+                self.write_byte(b)
+            self.stop()
+
     class Segment:
         digit_map = {
             '0': 0x3F, '1': 0x06, '2': 0x5B, '3': 0x4F,
@@ -121,5 +139,4 @@ class segment:
                     self._update()
                     sleep(5)
                     t += 5
-
 
