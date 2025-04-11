@@ -18,24 +18,25 @@ class joystick:
         if screen:
             coordsY = int(coordsY / segmentSize)
         return coordsX, coordsY
-class servo:
-    def driveServo(pin, num):
-        if num > 1024 or num < 0:
-            raise ValueError("Input value must be between 0 and 1024.")
-        new_value = 8 + num * (134 - 8) / 1024
-        pin.write_analog(new_value)
-        return True
-class driveAss:
-    def driveWheel(leftPin = pin0, rightPin = pin1, backPin = pin3, motor = "", value = 0):
-        if motor not in ["l", "L", "r", "R", "b", "B"]:
-            raise ValueError("Unknown motor")
-        if motor == "R" or motor == "r":
-            rightPin.write_digital(value)
-        if motor == "L" or motor == "l":
-            leftPin.write_digital(value)
-        if motor == "B" or motor == "b":
-            backPin.write_digital(value)
-        return(True)
+class motor:    
+    class servo:
+        def driveServo(pin, num):
+            if num > 1024 or num < 0:
+                raise ValueError("Input value must be between 0 and 1024.")
+            new_value = 8 + num * (134 - 8) / 1024
+            pin.write_analog(new_value)
+            return True
+    class driveAss:
+        def driveWheel(leftPin = pin0, rightPin = pin1, backPin = pin3, motor = "", value = 0):
+            if motor.lower() not in ["l", "r", "b"]:
+                raise ValueError("Unknown motor")
+            if motor == "r":
+                rightPin.write_digital(value)
+            if motor == "l":
+                leftPin.write_digital(value)
+            if motor == "b":
+                backPin.write_digital(value)
+            return(True)
         
 class laser:
     class Laser:
