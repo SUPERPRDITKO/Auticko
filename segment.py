@@ -1,65 +1,87 @@
-# python
-from microbit import sleep
+from microbit import pin0, pin1, sleep
+
+class TM1637:
+    def __init__(self, clk, dio):
+        self.clk = clk
+        self.dio = dio
+        self.clk.write_digital(1)
+        self.dio.write_digital(1)
+
+    def start(self):
+        self.dio.write_digital(1)
+        self.clk.write_digital(1)
+        self.dio.write_digital(0)
+        self.clk.write_digital(0)
+
+    def stop(self):
+        self.clk.write_digital(0)
+        self.dio.write_digital(0)
+        self.clk.write_digital(1)
+        self.dio.write_digital(1)
+
+    def write_byte(self, b):
+        for i in range(8):
+            self.clk.write_digital(0)
+            self.dio.write_digital((b >> i) & 1)
+            sleep(1)
+            self.clk.write_digital(1)
+            sleep(1)
+        # ACK bit
+        self.clk.write_digital(0)
+        self.dio.write_digital(1)
+        self.clk.write_digital(1)
+        sleep(1)
+        self.clk.write_digital(0)
+
+    def set_brightness(self, brightness):
+        brightness = max(0, min(7, brightness))
+        self.start()
+        self.write_byte(0x88 | brightness)
+        self.stop()
+
+    def show(self, data):
+        self.start()
+        self.write_byte(0x40)  # Auto increment
+        self.stop()
+        self.start()
+        self.write_byte(0xC0)  # Start address
+        for b in data:
+            self.write_byte(b)
+        self.stop()
 
 class Segment:
     digit_map = {
-        '0': [1,1,1,1,1,1,0],
-        '1': [0,1,1,0,0,0,0],
-        '2': [1,1,0,1,1,0,1],
-        '3': [1,1,1,1,0,0,1],
-        '4': [0,1,1,0,0,1,1],
-        '5': [1,0,1,1,0,1,1],
-        '6': [1,0,1,1,1,1,1],
-        '7': [1,1,1,0,0,0,0],
-        '8': [1,1,1,1,1,1,1],
-        '9': [1,1,1,1,0,1,1],
-        'A': [1,1,1,0,1,1,1],
-        'B': [0,0,1,1,1,1,1],
-        'C': [1,0,0,1,1,1,0],
-        'D': [0,1,1,1,1,0,1],
-        'E': [1,0,0,1,1,1,1],
-        'F': [1,0,0,0,1,1,1],
-        'G': [1,0,1,1,1,1,0],
-        'H': [0,1,1,0,1,1,1],
-        'I': [0,0,0,0,1,1,0],
-        'J': [0,1,1,1,0,0,0],
-        'L': [0,0,0,1,1,1,0],
-        'N': [1,1,1,0,1,1,0],
-        'O': [1,1,1,1,1,1,0],
-        'P': [1,1,0,0,1,1,1],
-        'Q': [1,1,1,0,0,1,1],
-        'R': [1,1,0,0,1,1,0],
-        'S': [1,0,1,1,0,1,1],
-        'T': [0,0,0,1,1,1,1],
-        'U': [0,1,1,1,1,1,0],
-        'Y': [0,1,1,1,0,1,1],
-        'Z': [1,1,0,1,1,0,1],
-        ' ': [0,0,0,0,0,0,0]
+        '0': 0x3F, '1': 0x06, '2': 0x5B, '3': 0x4F,
+        '4': 0x66, '5': 0x6D, '6': 0x7D, '7': 0x07,
+        '8': 0x7F, '9': 0x6F, 'A': 0x77, 'B': 0x7C,
+        'C': 0x39, 'D': 0x5E, 'E': 0x79, 'F': 0x71,
+        'G': 0x3D, 'H': 0x76, 'I': 0x30, 'J': 0x1E,
+        'L': 0x38, 'N': 0x54, 'O': 0x3F, 'P': 0x73,
+        'Q': 0x67, 'R': 0x50, 'S': 0x6D, 'T': 0x78,
+        'U': 0x3E, 'Y': 0x6E, 'Z': 0x5B, ' ': 0x00
     }
 
-    def __init__(self, pins_list):
-        self.digits = []
-        for pins in pins_list:
-            self.digits.append(pins)
-
-    def set_char(self, idx, char):
-        char = char.upper()
-        data = self.digit_map.get(char, self.digit_map[' '])
-        for pin, val in zip(self.digits[idx], data):
-            pin.write_digital(val)
-
-    def clear(self):
-        for digit in self.digits:
-            for seg in digit:
-                seg.write_digital(0)
+    def __init__(self, clk=pin0, dio=pin1):
+        self.disp = TM1637(clk, dio)
+        self.disp.set_brightness(7)
+        self.buffer = [' '] * 4
 
     def display(self, text):
-        self.clear()
-        for i in range(min(4, len(text))):
-            self.set_char(i, text[i])
+        padded = (text.upper() + "    ")[:4]
+        self.buffer = list(padded)
+        self._update()
 
-    def scroll(self, text, delay=400):
+    def _update(self):
+        data = [self.digit_map.get(c, 0x00) for c in self.buffer]
+        self.disp.show(data)
+
+    def scroll(self, text, speed=50):
         padded = "    " + text.upper() + "    "
         for i in range(len(padded) - 3):
-            self.display(padded[i:i+4])
-            sleep(delay)
+            self.buffer = list(padded[i:i+4])
+            t = 0
+            while t < speed:
+                self._update()
+                sleep(5)
+                t += 5
+
