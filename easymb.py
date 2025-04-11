@@ -33,11 +33,11 @@ class motor:
             if motor.lower() not in ["l", "r", "b"]:
                 raise ValueError("Unknown motor")
             if motor == "r":
-                rightPin.write_digital(value)
+                rightPin.write_analog(value)
             if motor == "l":
-                leftPin.write_digital(value)
+                leftPin.write_analog(value)
             if motor == "b":
-                backPin.write_digital(value)
+                backPin.write_analog(value)
             return True
 
 class laser:
@@ -142,4 +142,5 @@ class segment:
                     self._update()
                     sleep(5)
                     t += 5
+
 
