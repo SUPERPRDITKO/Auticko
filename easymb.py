@@ -103,7 +103,7 @@ class motor:
             motor.car.drive(self.leftPin, self.rightPin, self.backPin, "r", 0)
             motor.car.drive(self.leftPin, self.rightPin, self.backPin, "b", 0)
             
-        def foward(self, time, speed):
+        def forward(self, time, speed):
             motor.car.drive(self.leftPin, self.rightPin, self.backPin, "l", speed)
             motor.car.drive(self.leftPin, self.rightPin, self.backPin, "r", speed)
             motor.car.drive(self.leftPin, self.rightPin, self.backPin, "b", speed)
