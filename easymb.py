@@ -50,6 +50,7 @@ class TM1637:
             self.write_byte(b)
         self.stop()
 
+
 class joystick:
 
     def GetXY(pinX, pinY, screen):
@@ -70,6 +71,7 @@ class joystick:
         return coordsX, coordsY
 
 class motor:
+
     class servo:
         def driveServo(pin, num):
             gc.collect()
@@ -80,10 +82,14 @@ class motor:
             gc.collect()
             pin.write_analog(new_value)
             return True
-    
-    class car:
+
+    class car():
+        def __init__(self, leftPin=pin0, rightPin=pin1, backPin=pin2):
+            self.leftPin = leftPin
+            self.rightPin = rightPin
+            self.backPin = backPin
+
         def drive(leftPin = pin0, rightPin = pin1, backPin = pin3, motor = "", value = 0):
-            gc.collect()
             if motor.lower() not in ["l", "r", "b"]:
                 raise ValueError("Unknown motor")
             if motor == "r":
@@ -92,17 +98,28 @@ class motor:
                 leftPin.write_analog(value)
             if motor == "b":
                 backPin.write_analog(value)
-            gc.collect()
             return True
+    
+        def stop(self):
+            motor.car.drive(self.leftPin, self.rightPin, self.backPin, "l", 0)
+            motor.car.drive(self.leftPin, self.rightPin, self.backPin, "r", 0)
+            motor.car.drive(self.leftPin, self.rightPin, self.backPin, "b", 0)
+
+        def foward(self, time, speed):
+            motor.car.drive(self.leftPin, self.rightPin, self.backPin, "l", speed)
+            motor.car.drive(self.leftPin, self.rightPin, self.backPin, "r", speed)
+            motor.car.drive(self.leftPin, self.rightPin, self.backPin, "b", speed)
+            sleep(time)
+            self.stop()
 
 class ultraSonic:
     def read_distance_cm(signal):
-        """NOTE: ONLY PINS 3,4 AND 10 + TURN OFF DISPLAY ( display.off() )"""
+        """NOTE: ONLY USE PINS 3,4 AND 10 + TURN OFF DISPLAY ( display.off() )"""
         vcc = 3.3
         max_range = 300.0  # Maximum range in cm
         # Read the analog value from the sensor
         voltage = signal.read_analog()  # This gives a value between 0 and 1023
-        
+
         # Convert the ADC value to a voltage (0-1023 maps to 0-3.3V or 0-5V)
         voltage_out = (voltage / 1023.0) * vcc  # Convert to voltage
 
@@ -147,7 +164,6 @@ class segment:
             self.buffer = [' '] * 4
 
         def display(self, text):
-            text = str(text)
             padded = (text.upper() + "    ")[:4]
             self.buffer = list(padded)
             self._update()
@@ -180,7 +196,7 @@ class setup:
             controlSet()
         if mode == 1:
             carSet()
-            
+
     def controlSet():
         """ pause the cont. and search for password in all channels"""
         radio.on()
@@ -191,7 +207,7 @@ class setup:
             chan += 1
             try: radio.config(channel= chan)
             except: chan = 0
-                
+
             if button_b.was_pressed():
                 password += 1
                 if (password == 10):
@@ -201,7 +217,7 @@ class setup:
                 for i in range(100):
                     radio.send(str(password))
                 break
-    
+
     def carSet():
         """ pause the car and await the signal matching the password """
         radio.on()
@@ -215,15 +231,13 @@ class setup:
             display.show(Image.HEART)
             sleep(800)
             if button_a.was_pressed():
-    
+
                 password += 1
             elif button_b.was_pressed():
                 chan += 1
                 radio.config(channel= chan)
-                
+
             radio.send(str(password))
             if (radio.receive() == str(password)):
                 display.scroll("y")
                 break
-
-
