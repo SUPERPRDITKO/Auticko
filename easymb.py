@@ -80,6 +80,7 @@ class motor:
             gc.collect()
             pin.write_analog(new_value)
             return True
+    #add turn
     
     class car():
         def __init__(self, leftPin=pin0, rightPin=pin1, backPin=pin2):
