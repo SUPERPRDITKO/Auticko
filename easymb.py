@@ -1,6 +1,55 @@
 from microbit import *  # noqa: F403
 import gc
 
+class TM1637:
+    def __init__(self, clk, dio):
+        self.clk = clk
+        self.dio = dio
+        self.clk.write_digital(1)
+        self.dio.write_digital(1)
+
+    def start(self):
+        self.dio.write_digital(1)
+        self.clk.write_digital(1)
+        self.dio.write_digital(0)
+        self.clk.write_digital(0)
+
+    def stop(self):
+        self.clk.write_digital(0)
+        self.dio.write_digital(0)
+        self.clk.write_digital(1)
+        self.dio.write_digital(1)
+
+    def write_byte(self, b):
+        for i in range(8):
+            self.clk.write_digital(0)
+            self.dio.write_digital((b >> i) & 1)
+            sleep(1)
+            self.clk.write_digital(1)
+            sleep(1)
+        # ACK bit
+        self.clk.write_digital(0)
+        self.dio.write_digital(1)
+        self.clk.write_digital(1)
+        sleep(1)
+        self.clk.write_digital(0)
+
+    def set_brightness(self, brightness):
+        brightness = max(0, min(7, brightness))
+        self.start()
+        self.write_byte(0x88 | brightness)
+        self.stop()
+
+    def show(self, data):
+        self.start()
+        self.write_byte(0x40)  # Auto increment
+        self.stop()
+        self.start()
+        self.write_byte(0xC0)  # Start address
+        for b in data:
+            self.write_byte(b)
+        self.stop()
+
 class joystick:
 
     def GetXY(pinX, pinY, screen):
@@ -80,55 +129,6 @@ class laser:
             self.off()
 
 class segment:
-    class TM1637:
-        def __init__(self, clk, dio):
-            self.clk = clk
-            self.dio = dio
-            self.clk.write_digital(1)
-            self.dio.write_digital(1)
-
-        def start(self):
-            self.dio.write_digital(1)
-            self.clk.write_digital(1)
-            self.dio.write_digital(0)
-            self.clk.write_digital(0)
-
-        def stop(self):
-            self.clk.write_digital(0)
-            self.dio.write_digital(0)
-            self.clk.write_digital(1)
-            self.dio.write_digital(1)
-
-        def write_byte(self, b):
-            for i in range(8):
-                self.clk.write_digital(0)
-                self.dio.write_digital((b >> i) & 1)
-                sleep(1)
-                self.clk.write_digital(1)
-                sleep(1)
-            # ACK bit
-            self.clk.write_digital(0)
-            self.dio.write_digital(1)
-            self.clk.write_digital(1)
-            sleep(1)
-            self.clk.write_digital(0)
-
-        def set_brightness(self, brightness):
-            brightness = max(0, min(7, brightness))
-            self.start()
-            self.write_byte(0x88 | brightness)
-            self.stop()
-
-        def show(self, data):
-            self.start()
-            self.write_byte(0x40)  # Auto increment
-            self.stop()
-            self.start()
-            self.write_byte(0xC0)  # Start address
-            for b in data:
-                self.write_byte(b)
-            self.stop()
-
     class Segment:
         digit_map = {
             '0': 0x3F, '1': 0x06, '2': 0x5B, '3': 0x4F,
