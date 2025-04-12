@@ -193,9 +193,9 @@ class setup:
                 mode = 1
                 break
         if mode == 0:
-            controlSet()
+            setup.controlSet()
         if mode == 1:
-            carSet()
+            setup.carSet()
             
     def controlSet():
         """ pause the cont. and search for password in all channels"""
