@@ -1,5 +1,5 @@
 from microbit import *  # noqa: F403
-
+import gc
 
 class joystick:
 
@@ -19,17 +19,22 @@ class joystick:
         if screen:
             coordsY = int(coordsY / segmentSize)
         return coordsX, coordsY
-class motor:    
+
+class motor:
     class servo:
         def driveServo(pin, num):
+            gc.collect()
             if num > 1024 or num < 0:
                 raise ValueError("Input value must be between 0 and 1024.")
-            new_value = 8 + num * (134 - 8) / 1024
+            gc.collect()
+            new_value = int(8 + num * (134 - 8) / 1024)
+            gc.collect()
             pin.write_analog(new_value)
             return True
     
     class car:
         def drive(leftPin = pin0, rightPin = pin1, backPin = pin3, motor = "", value = 0):
+            gc.collect()
             if motor.lower() not in ["l", "r", "b"]:
                 raise ValueError("Unknown motor")
             if motor == "r":
@@ -38,6 +43,7 @@ class motor:
                 leftPin.write_analog(value)
             if motor == "b":
                 backPin.write_analog(value)
+            gc.collect()
             return True
 
 class laser:
@@ -142,50 +148,4 @@ class segment:
                     self._update()
                     sleep(5)
                     t += 5
-    class setup:
-        def controlPasswordSet():
-            """ pause the cont. and search for password in all channels"""
-            radio.on()
-            password = 0
-            chan = 0
-            while True:
-                display.show(password)
-                chan += 1
-                try: radio.config(channel= chan)
-                except: chan = 0
-                    
-                if button_b.was_pressed():
-                    password += 1
-                    if (password == 10):
-                        password = 0
-                if (radio.receive() == str(password)):
-                    display.scroll("y")
-                    for i in range(100):
-                        radio.send(str(password))
-                    break
-        
-        def carSet():
-            """ pause the car and await the signal matching the password """
-            radio.on()
-            password = 0
-            chan = 1
-            while True:
-                display.show(password)
-                sleep(400)
-                display.show(chan)
-                sleep(400)
-                display.show(Image.HEART)
-                sleep(800)
-                if button_a.was_pressed():
-        
-                    password += 1
-                elif button_b.was_pressed():
-                    chan += 1
-                    radio.config(channel= chan)
-                    
-                radio.send(str(password))
-                if (radio.receive() == str(password)):
-                    display.scroll("y")
-                    break
-
 
