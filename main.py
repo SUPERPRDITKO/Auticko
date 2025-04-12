@@ -7,6 +7,5 @@ import radio
 while True:
     x, y = joy.joystickGetXY(pin0, pin1, True)
     display.set_pixel(x, y, 9)
-    #sleep(1)
-    sleep(40)
+    sleep(10)
     display.clear()
