@@ -48,19 +48,19 @@ class motor:
 
 class ultraSonic:
     def read_distance_cm(signal):
+        """NOTE: ONLY PINS 3,4 AND 10 + TURN OFF DISPLAY ( display.off() )"""
+        vcc = 3.3
+        max_range = 300.0  # Maximum range in cm
         # Read the analog value from the sensor
         voltage = signal.read_analog()  # This gives a value between 0 and 1023
         
-        # Convert the ADC value to a voltage (0-1023 maps to 0-3.3V)
-        voltage_out = (voltage / 1023.0) * 3.3  # Convert to voltage
-        
-        # Calculate distance in cm using the calibration equation
-        # If max range = 100 cm, and Vcc = 5V, 1V = 20 cm.
-        # Assuming 5V Vcc, for simplicity (adjust if using 3.3V Vcc)
-        max_range = 100  # max range in cm
-        distance_cm = (voltage_out / 5.0) * max_range  # Apply calibration equation
-        
-        # Return the calculated distance
+        # Convert the ADC value to a voltage (0-1023 maps to 0-3.3V or 0-5V)
+        voltage_out = (voltage / 1023.0) * vcc  # Convert to voltage
+
+        # Apply the calibration equation: 1V = max_range / Vcc
+        # Example: For 5V VCC, 1V = 20 cm.
+        distance_cm = (voltage_out / vcc) * max_range
+
         return distance_cm
 class laser:
     class Laser:
