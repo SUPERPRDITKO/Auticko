@@ -82,13 +82,13 @@ class motor:
             gc.collect()
             pin.write_analog(new_value)
             return True
-
+    #add turn
+    
     class car():
         def __init__(self, leftPin=pin0, rightPin=pin1, backPin=pin2):
             self.leftPin = leftPin
             self.rightPin = rightPin
             self.backPin = backPin
-
         def drive(leftPin = pin0, rightPin = pin1, backPin = pin3, motor = "", value = 0):
             if motor.lower() not in ["l", "r", "b"]:
                 raise ValueError("Unknown motor")
@@ -99,18 +99,6 @@ class motor:
             if motor == "b":
                 backPin.write_analog(value)
             return True
-    
-        def stop(self):
-            motor.car.drive(self.leftPin, self.rightPin, self.backPin, "l", 0)
-            motor.car.drive(self.leftPin, self.rightPin, self.backPin, "r", 0)
-            motor.car.drive(self.leftPin, self.rightPin, self.backPin, "b", 0)
-
-        def foward(self, time, speed):
-            motor.car.drive(self.leftPin, self.rightPin, self.backPin, "l", speed)
-            motor.car.drive(self.leftPin, self.rightPin, self.backPin, "r", speed)
-            motor.car.drive(self.leftPin, self.rightPin, self.backPin, "b", speed)
-            sleep(time)
-            self.stop()
 
 class ultraSonic:
     def read_distance_cm(signal):
@@ -193,10 +181,10 @@ class setup:
                 mode = 1
                 break
         if mode == 0:
-            controlSet()
+            setup.controlSet()
         if mode == 1:
             carSet()
-
+            
     def controlSet():
         """ pause the cont. and search for password in all channels"""
         radio.on()
