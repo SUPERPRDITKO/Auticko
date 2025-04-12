@@ -147,6 +147,7 @@ class segment:
             self.buffer = [' '] * 4
 
         def display(self, text):
+            text = str(text)
             padded = (text.upper() + "    ")[:4]
             self.buffer = list(padded)
             self._update()
